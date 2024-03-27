@@ -3,30 +3,41 @@
     <head>
         <script src="./lorem.js"></script>
         <script src="./cata.js"></script>
+        <style>
+            div.cont {
+                box-sizing: border-box;
+                display: inline-block;
+                overflow: hidden;
+                position: absolute;
+            }
+            div.select-rect {
+                border: 3px solid darkblue;
+                display:inline-block;
+                position: absolute;
+                height: 0px;
+                left: 0px;
+                top: 0px;
+                width: 0px;
+            }
+        </style>
     </head>
     <body style="margin: 0px; overflow: hidden;">
-        <!-- <div style="margin: 0px; width: calc(100%-25px); height: calc(100%-25px); overflow: scroll;">
-            <div>
-                <canvas height="25px" style="position: absolute; height: 25px; width: 10500px; background-color: red;"></canvas>
+        <!-- <div style="position: absolute; left: 100px; top: 100px; height: 400px; width: 400px; border: 1px solid black;">
+            <div id="rc" style="display: inline-block; position: absolute; height: 25px; width: 25px; overflow: hidden;">
+                <canvas id="root" height="25px" width="25px" style="position: absolute; background-color: pink;"></canvas>
             </div>
-            <div>
-                <canvas width="25px" style="position: absolute; height: 2500px; width: 25px; top: 25px; background-color: green;"></canvas>
+            <div id="hs" style="display: inline-block; position: absolute; height: 25px; width: 383px; overflow: hidden;">
+                <canvas id="header" height="25px" width="5000px" style="position: absolute; left: 25px; background-color: red;"></canvas>
             </div>
-            <div>
-                <canvas id="canvas" width="10500px;" height="2500px" style="position: absolute; left: 25px; top: 25px;"></canvas>
+            <div id="rs" style="display: inline-block; position: absolute; height: 358px; width:25px; left: 0px; top: 25px; overflow: hidden;">
+                <canvas id="rowsel" width="25px" height="25000px" style="position: absolute; background-color: green;"></canvas>
             </div>
-        </div> -->
-        <div style="position: absolute; left: 100px; top: 100px; height: 400px; width: 400px; border: 1px solid black;">
-            <div style="display: inline-block; position: absolute; height: 25px; width: 383px; overflow: hidden;">
-                <!-- <canvas height="25px" style="position: absolute; height: 25px; width: 10500px; background-color: red;"></canvas> -->
-            </div>
-            <div style="display: inline-block; position: absolute; height: 358px; width:25px; left: 0px; top: 25px; overflow: hidden;">
-                <!-- <canvas width="25px" style="position: absolute; height: 2500px; width: 25px; top: 25px; background-color: green;"></canvas> -->
-            </div>
-            <div style="display: inline-block; position: absolute; height: 375px; width:375px; left: 25px; top: 25px; overflow: scroll;">
-                <canvas id="canvas" width="5000px;" height="2500px" ></canvas>
+            <div id="bc" style="display: inline-block; position: absolute; height: 375px; width:375px; left: 25px; top: 25px; overflow: scroll;">
+                <canvas id="canvas" width="5000px;" height="25000px" ></canvas>
                 <div id="select-rect" style="position: absolute; display:inline-block; top: 0px; left: 0px; width: 0px; height: 0px; border: 3px solid darkblue;"></div>
             </div>
-        </div>
+        </div> -->
+        <!-- <div id="foo" style="box-sizing: border-box; position: absolute; left: 100px; top: 600px; height: 500px; width: 500px; border: 1px solid black;"></div> -->
+        <div id="foo" style="box-sizing: border-box; position: absolute; left: 0px; top: 0px; height: 100%; width: 100%; border: 1px solid black;"></div>
     </body>
 </html>

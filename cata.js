@@ -1,119 +1,230 @@
+let height = 500;
+let width = 500;
+
 let currentCellRow = 1;
 let currentCellColumn = 1;
 let rows = csv.split('\n');
-let columnCount = 1000;
-let rowCount = 10000;
+let cells = rows[0].split(',');
+let columnCount = 30;
+let rowCount = 50;
+let renderRect = {
+    firstRow: 1,
+    firstColumn: 1,
+    lastRow: rowCount,
+    lastColumn: columnCount
+};
+const zebra = false;
 const rowHeight = 25;
-const columnWidths = [
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-  25, 75, 50, 25, 30, 100, 50, 20, 80, 45,
-];
+const scrollbarSize = 16;
+let columnWidths = [];
+for (let i = 0; i < columnCount/10; i++) {
+  columnWidths = columnWidths.concat([25, 75, 50, 25, 30, 100, 50, 20, 80, 45]);
+}
 let columnPositions = columnWidths.map((sum => value => sum += value)(0));
-columnPositions = [
-  0, 25, 100, 150, 175, 205, 305, 355, 375, 455,
-  500, 525, 600, 650, 675, 705, 805, 855, 875, 955, 1000, 1025, 1100, 1150, 1175, 1205, 1305, 1355, 1375, 1455, 1500, 1525, 1600, 1650, 1675, 1705, 1805, 1855, 1875, 1955, 2000, 2025, 2100, 2150, 2175, 2205, 2305, 2355, 2375, 2455, 2500, 2525, 2600, 2650, 2675, 2705, 2805, 2855, 2875, 2955, 3000, 3025, 3100, 3150, 3175, 3205, 3305, 3355, 3375, 3455, 3500, 3525, 3600, 3650, 3675, 3705, 3805, 3855, 3875, 3955, 4000, 4025, 4100, 4150, 4175, 4205, 4305, 4355, 4375, 4455, 4500, 4525, 4600, 4650, 4675, 4705, 4805, 4855, 4875, 4955, 5000]
-
+let columnNames = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+columnPositions.splice(0, 0, 0);
 
 // CanvasRenderingContext2D.prototype.clip = function () { };
 
-function drawCellContent() {
+function html(container) {
+  let height = container.offsetHeight;
+  let width = container.offsetWidth;
+
+  let rowHeaderContainer = document.createElement('div');
+  rowHeaderContainer.id = 'row-header-container';
+  rowHeaderContainer.className = 'cont';
+  rowHeaderContainer.style.height = rowHeight + 'px';
+  rowHeaderContainer.style.width = rowHeight + 'px';
+  rowHeaderContainer.style.backgroundColor = 'red';
+  container.appendChild(rowHeaderContainer);
+  let rowHeaderCanvas = document.createElement('canvas');
+  rowHeaderCanvas.id = 'row-header-canvas';
+  rowHeaderCanvas.width = rowHeight;
+  rowHeaderCanvas.height = rowHeight;
+  rowHeaderContainer.appendChild(rowHeaderCanvas);
+  
+  let headerContainer = document.createElement('div');
+  headerContainer.id = 'header-container'
+  headerContainer.className = 'cont';
+  headerContainer.style.left = rowHeight + 'px';
+  headerContainer.style.height = rowHeight + 'px';
+  headerContainer.style.width = width - rowHeight - scrollbarSize + 'px';
+  headerContainer.style.backgroundColor = 'blue';
+  container.append(headerContainer);
+  let headerCanvas = document.createElement('canvas');
+  headerCanvas.id = 'header-canvas';
+  // headerCanvas.width = width - rowHeight - scrollbarSize;
+  headerCanvas.width = columnPositions[columnPositions.length-1];
+  headerCanvas.height = rowHeight;
+  headerContainer.appendChild(headerCanvas);
+  
+  let rowContainer = document.createElement('div');
+  rowContainer.id = 'row-container';
+  rowContainer.className = 'cont';
+  rowContainer.style.top = rowHeight + 'px';
+  rowContainer.style.height = height - rowHeight - scrollbarSize + 'px';
+  rowContainer.style.width = rowHeight + 'px';
+  rowContainer.style.backgroundColor = 'green';
+  container.append(rowContainer);
+  let rowCanvas = document.createElement('canvas');
+  rowCanvas.id = 'row-canvas';
+  rowCanvas.width = rowHeight;
+  // rowCanvas.height = height - rowHeight - scrollbarSize;
+  rowCanvas.height = rowCount * rowHeight;
+  rowContainer.appendChild(rowCanvas);
+  
+  let bodyContainer = document.createElement('div');
+  bodyContainer.id = 'body-container';
+  bodyContainer.className = 'cont';
+  bodyContainer.style.left = rowHeight + 'px';
+  bodyContainer.style.top = rowHeight + 'px';
+  bodyContainer.style.height = height - rowHeight - scrollbarSize + 'px';
+  bodyContainer.style.width = width - rowHeight - scrollbarSize + 'px';
+  bodyContainer.style.backgroundColor = 'yellow';
+  container.append(bodyContainer);
+  let bodyCanvas = document.createElement('canvas');
+  bodyCanvas.id = 'body-canvas';
+  // bodyCanvas.width = width - rowHeight - scrollbarSize;
+  bodyCanvas.width = columnPositions[columnPositions.length-1];
+  // bodyCanvas.height = height - rowHeight - scrollbarSize;
+  bodyCanvas.height = rowCount * rowHeight;
+  bodyContainer.appendChild(bodyCanvas);
+  let selectRect = document.createElement('div');
+  selectRect.id = "select-rect";
+  selectRect.className = 'select-rect';
+  bodyContainer.appendChild(selectRect);
+}
+
+function drawHeaderRow() {
   let x, y, w, h;
-  const ctx = document.getElementById("canvas").getContext("2d");
-  ctx.font = "10pt helvetica";
+  const ctx = document.getElementById("header-canvas").getContext("2d");
+  ctx.font = "10pt Segoe UI";
   let m = ctx.measureText('text');
   // let hf = m.fontBoundingBoxAscent + m.fontBoundingBoxDescent;
   let ha = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
-  let cells = rows[0].split(',');
-  for (let c = 0; c < columnCount; c++) {
-    ctx.save();
-    ctx.fillStyle = 'black';
-    x = columnPositions[c]+1;
+  ctx.fillStyle = '#aaa';
+  ctx.fillRect(0, 0, 2500, 25);
+  ctx.textAlign = "center";
+  for (let c = renderRect.firstColumn-1; c <= renderRect.lastColumn-1; c++) {
+    x = columnPositions[c]+.5;
     y = 0;
-    w = columnWidths[c]-1;
-    h = rowCount*rowHeight;
-    ctx.rect(x, y, w, h);
-    ctx.clip();
-
-    for (let r = 0; r < rowCount; r++) {
-      x = columnPositions[c]+1;
-      y = (r*rowHeight)+1;
-      w = columnWidths[c]-1;
-      h = rowHeight-1;
-
-      // ctx.fillRect(x, y, w, h);
-      // ctx.fillStyle = 'white';
-      ctx.fillText(cells[(r*columnCount+c)%10000], x+2, y+h/2+ha/2);
-      // console.log(`x=${x}, y=${y}, w=${w}, h=${h}, r=${r}, c=${c}, index=${r*columnCount+c}, text=${cells[r*columnCount+c]}`);
-    }
-    ctx.restore();
+    w = columnWidths[c]-.5;
+    h = 25;
+    
+    ctx.fillStyle = '#ddd';
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = 'black';
+    ctx.fillText(columnNames[c%26], x+(columnWidths[c]/2), y+h/2+ha/2);
   }
 }
 
-function drawCellContent2() {
-  let x, y, w, h;
-  const ctx = document.getElementById("canvas").getContext("2d");
-  ctx.font = "10pt helvetica";
+function drawRowSelector() {
+let x, y, w, h;
+  const ctx = document.getElementById("row-canvas").getContext("2d");
+  ctx.font = "10pt Segoe UI";
   let m = ctx.measureText('text');
   // let hf = m.fontBoundingBoxAscent + m.fontBoundingBoxDescent;
   let ha = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
-  let cells = rows[0].split(',');
-  for (let c = 0; c < columnCount; c++) {
-    x = columnPositions[c]+1;
-    y = 0;
-    w = columnWidths[c]-1;
-    h = rowCount*rowHeight;
-    ctx.fillStyle = 'white';
-    ctx.fillRect(x, y, w, h);
+  ctx.fillStyle = '#aaa';
+  ctx.fillRect(0, 0, 25, 2500);
+  ctx.textAlign = "center";
+  let r;
+  for (r = renderRect.firstRow-1; r <= renderRect.lastRow-1; r++) {
+    x = 0;
+    y = r*rowHeight+1;
+    w = rowHeight;
+    h = rowHeight-.5;
     
-    for (let r = 0; r < rowCount; r++) {
+    ctx.fillStyle = '#ddd';
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = 'black';
+    ctx.fillText((r+1).toString(), x+13, y+h/2+ha/2);
+  }
+  console.log(`simon r=${r}`)
+}
+
+function drawCellContent() {
+  let x, y, w, h;
+  const ctx = document.getElementById("body-canvas").getContext("2d");
+  ctx.font = "10pt Segoe UI";
+  let m = ctx.measureText('text');
+  // let hf = m.fontBoundingBoxAscent + m.fontBoundingBoxDescent;
+  let ha = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  
+  for (let r = renderRect.firstRow-1; r <= renderRect.lastRow-1; r++) {
+    for (let c = renderRect.firstColumn-1; c <= renderRect.lastColumn-1 ; c++) {
+      
       x = columnPositions[c]+1;
       y = (r*rowHeight)+1;
       w = columnWidths[c]-1;
       h = rowHeight-1;
       
+      if (zebra) {
+        if (r%2 == 0) {
+          ctx.fillStyle = 'white';
+        } else {
+          ctx.fillStyle = '#eee';
+        }
+      } else {
+        ctx.fillStyle = 'white';
+      }
+      ctx.fillRect(x, y, w, h);
       ctx.fillStyle = 'black';
-      ctx.fillText(cells[r*columnCount+c], x+2, y+h/2+ha/2);
-      // console.log(`x=${x}, y=${y}, w=${w}, h=${h}, r=${r}, c=${c}, index=${(r*columnCount+c)%10000}, text=${cells[(r*columnCount+c)%10000]}`);
+      ctx.fillText(cells[((r+1)*(c+1))%10000], x+2, y+h/2+ha/2);
+      // console.log(`x=${x}, y=${y}, w=${w}, h=${h}, r=${r}, c=${c}, inde  x=${(r*c)}, text=${cells[(r*c)%10000]}`);
     }
-    ctx.restore();
   }
 }
 
+// function drawCellContentClip() {
+//   let x, y, w, h;
+//   const ctx = document.getElementById("canvas").getContext("2d");
+//   ctx.font = "10pt Segoe UI";
+//   let m = ctx.measureText('text');
+//   // let hf = m.fontBoundingBoxAscent + m.fontBoundingBoxDescent;
+//   let ha = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+//   let cells = rows[0].split(',');
+//   for (let c = 0; c < columnCount; c++) {
+//     ctx.save();
+//     ctx.fillStyle = 'black';
+//     x = columnPositions[c%10]+1;
+//     y = 0;
+//     w = columnWidths[c%10]-1;
+//     h = rowCount*rowHeight;
+//     ctx.rect(x, y, w, h);
+//     ctx.clip();
+
+//     for (let r = 0; r < rowCount; r++) {
+//       x = columnPositions[c%10]+1;
+//       y = (r*rowHeight)+1;
+//       w = columnWidths[c%10]-1;
+//       h = rowHeight-1;
+
+//       // ctx.fillRect(x, y, w, h);
+//       // ctx.fillStyle = 'white';
+//       ctx.fillText(cells[(r*columnCount+c)%10000], x+2, y+h/2+ha/2);
+//       // console.log(`x=${x}, y=${y}, w=${w}, h=${h}, r=${r}, c=${c}, index=${r*columnCount+c}, text=${cells[r*columnCount+c]}`);
+//     }
+//     ctx.restore();
+//   }
+// }
+
 function drawGrid() {
-  const ctx = document.getElementById("canvas").getContext("2d");
+  const ctx = document.getElementById("body-canvas").getContext("2d");
   ctx.strokeStyle = '#ddd';
-  for (let r = 0; r < 1000; r++) {
+  for (let r = 0; r < rowCount; r++) {
     ctx.moveTo(0, (r+1)*rowHeight+0.5);
     ctx.lineTo(columnPositions[columnPositions.length-1], (r+1)*rowHeight+0.5);
-    // ctx.stroke();
   }  
-  for (let c = 0; c < columnPositions.length; c++) {
+  for (let c = 0; c < columnCount; c++) {
     ctx.moveTo(columnPositions[c]+0.5, 0);
     ctx.lineTo(columnPositions[c]+0.5, rowCount*rowHeight);
-    // ctx.stroke();
   }
   ctx.stroke();
 }
 
-function drawZebra() {
-  const ctx = document.getElementById("canvas").getContext("2d");
-  ctx.fillStyle = "#eee";
-  for (let r=0; r < rowCount; r+= 2) {
-    ctx.fillRect(0+1, r*rowHeight, columnPositions[columnPositions.length-1], rowHeight)
-
-  }
-}
-
 function registerMousedownEvent() {
-  const canvas = document.getElementById('canvas')
+  const canvas = document.getElementById('body-canvas')
   canvas.addEventListener('mousedown', function(e) {
       handleMousedown(canvas, e)
   });
@@ -147,10 +258,14 @@ function registerKeydown() {
 }
 
 function handleKeydown(e) {
+  let bc = document.getElementById("body-container");
   switch (e.code) {
     case 'ArrowUp':
       if (currentCellRow > 1) {
         currentCellRow--;
+        if ((currentCellRow-1) * rowHeight < bc.scrollTop) {
+          bc.scrollTop = ((currentCellRow-1) * rowHeight);
+        }
       } else {
         return
       }
@@ -158,20 +273,30 @@ function handleKeydown(e) {
     case 'ArrowDown':
       if (currentCellRow < rowCount) {
         currentCellRow++;
-      } else {
+        if ((currentCellRow+1) * rowHeight > bc.offsetHeight) {
+          bc.scrollTop = (currentCellRow * rowHeight) - bc.offsetHeight + scrollbarSize + 2;
+        }
+    } else {
         return
       }
       break;
     case 'ArrowLeft':
       if (currentCellColumn > 1) {
         currentCellColumn--;
-      } else {
+        if (columnPositions[currentCellColumn-1] < bc.scrollLeft) {
+          bc.scrollLeft = columnPositions[currentCellColumn-1];
+        }
+    } else {
         return
       }
       break;
-    case 'ArrowRight':
-      if (currentCellColumn < columnCount) {
-        currentCellColumn++;
+      case 'ArrowRight':
+        if (currentCellColumn < columnCount) {
+          currentCellColumn++;
+          if (columnPositions[currentCellColumn-1] + columnWidths[currentCellColumn-1] > bc.offsetWidth) {
+          // if (columnPositions[currentCellColumn+1] > bc.offsetWidth) {
+            bc.scrollLeft = columnPositions[currentCellColumn-1] + columnWidths[currentCellColumn-1] - bc.offsetWidth + scrollbarSize + 2;
+          }
       } else {
         return
       }
@@ -196,14 +321,29 @@ function updateCurrentCellPosition() {
   );
 }
 
+function registerScroll() {
+  const bc = document.getElementById('body-container')
+  bc.addEventListener('scroll', function(e) {
+    handleScroll(e);
+  });
+}
+
+function handleScroll(e) {
+  let bc = document.getElementById("body-container");
+  document.getElementById("row-container").scrollTop = bc.scrollTop;
+  document.getElementById("header-container").scrollLeft = bc.scrollLeft;
+}
+
 document.onreadystatechange = () => {
   if (document.readyState === "interactive") {
-    let d1 = new Date();
-    // drawZebra();
-    drawCellContent2();
+    html(document.getElementById('foo'));
+    drawHeaderRow();
+    drawRowSelector();
+    drawCellContent();
     drawGrid();
     registerMousedownEvent();
     registerKeydown();
+    registerScroll();
     updateCurrentCellPosition();
   }
 };
